@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Kosher Jobs — Работа с соблюдением Шаббата</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#f7f4ef;color:#1a1a2e;min-height:100vh}
+.app{max-width:680px;margin:0 auto;padding:2rem 1rem 4rem}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:2.5rem}
+.logo-star{width:32px;height:32px;background:#1A4A6B;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#D4AF37;font-size:16px;flex-shrink:0}
+.logo-text{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:#1A4A6B;letter-spacing:-0.3px}
+.logo-sub{font-size:11px;color:#888;letter-spacing:0.5px;text-transform:uppercase;margin-top:1px}
+.screen{display:none}
+.screen.active{display:block}
+
+.hero-title{font-family:'Playfair Display',serif;font-size:2rem;font-weight:600;color:#1A4A6B;line-height:1.25;margin-bottom:0.75rem}
+.hero-sub{font-size:15px;color:#555;line-height:1.6;margin-bottom:2rem}
+.upload-zone{border:1.5px dashed #b0c4d8;border-radius:16px;padding:2.5rem 2rem;text-align:center;cursor:pointer;transition:all 0.2s;background:#fff;margin-bottom:0.75rem}
+.upload-zone:hover{border-color:#1A4A6B;background:#f0f5fa}
+.upload-icon{font-size:2rem;margin-bottom:0.75rem;color:#1A4A6B}
+.upload-label{font-size:15px;font-weight:500;color:#1A4A6B;margin-bottom:0.4rem}
+.upload-hint{font-size:13px;color:#999}
+.format-badge{display:inline-block;background:#e8f0f7;color:#1A4A6B;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;margin:0 3px}
+.formats{margin-top:0.5rem}
+input[type=file]{display:none}
+
+.loading-center{text-align:center;padding:3rem 0}
+.spinner{width:48px;height:48px;border:3px solid #e0e8f0;border-top-color:#1A4A6B;border-radius:50%;animation:spin 0.9s linear infinite;margin:0 auto 1.5rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-steps{list-style:none;text-align:left;max-width:260px;margin:0 auto;font-size:14px;color:#555}
+.loading-steps li{padding:6px 0;display:flex;align-items:center;gap:10px}
+.loading-steps li.done{color:#1A4A6B;font-weight:500}
+.step-dot{width:8px;height:8px;border-radius:50%;background:#ddd;flex-shrink:0}
+.step-dot.done{background:#D4AF37}
+.step-dot.active{background:#1A4A6B;animation:pulse 1s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+.results-header{margin-bottom:1.5rem}
+.results-title{font-family:'Playfair Display',serif;font-size:1.4rem;color:#1A4A6B;margin-bottom:0.3rem}
+.results-sub{font-size:13px;color:#888}
+.vacancy-card{background:#fff;border-radius:14px;padding:1.25rem;margin-bottom:1rem;border:1px solid #e8edf2;transition:box-shadow 0.2s}
+.vacancy-card:hover{box-shadow:0 4px 20px rgba(26,74,107,0.08)}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.6rem}
+.vacancy-title{font-weight:500;font-size:15px;color:#1a1a2e;line-height:1.3}
+.vacancy-salary{font-size:13px;font-weight:500;color:#1A4A6B;white-space:nowrap;margin-left:1rem;flex-shrink:0}
+.vacancy-desc{font-size:13px;color:#666;line-height:1.55;margin-bottom:0.75rem}
+.shabbat-tag{display:inline-flex;align-items:center;gap:6px;background:#fff8e6;border:1px solid #f0d88a;border-radius:20px;padding:4px 12px;font-size:12px;color:#7a5c00;margin-bottom:0.85rem}
+.company-hidden{font-size:12px;color:#aaa;margin-bottom:0.85rem;font-style:italic}
+.card-btn{width:100%;padding:10px;border:1.5px solid #1A4A6B;border-radius:10px;background:transparent;color:#1A4A6B;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s}
+.card-btn:hover{background:#1A4A6B;color:#fff}
+
+.register-block{background:#1A4A6B;border-radius:14px;padding:1.5rem;margin-top:0.5rem;color:#fff}
+.reg-title{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:0.4rem}
+.reg-sub{font-size:13px;opacity:0.8;margin-bottom:1rem}
+.reg-form{display:flex;flex-direction:column;gap:0.6rem}
+.reg-input{padding:10px 14px;border-radius:9px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;background:#fff;color:#1a1a2e}
+.reg-input::placeholder{color:#aaa}
+.reg-btn{padding:11px;border-radius:9px;border:none;background:#D4AF37;color:#1A4A6B;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:opacity 0.2s}
+.reg-btn:hover{opacity:0.9}
+
+.email-sent{text-align:center;padding:2rem 0}
+.email-icon{font-size:3rem;margin-bottom:1rem;color:#1A4A6B}
+.email-title{font-family:'Playfair Display',serif;font-size:1.3rem;color:#1A4A6B;margin-bottom:0.5rem}
+.email-sub{font-size:14px;color:#666;line-height:1.6;margin-bottom:1.5rem}
+.timer-box{background:#fff;border-radius:12px;padding:1rem;border:1px solid #e8edf2;margin-bottom:1rem;font-size:13px;color:#888}
+.timer-val{font-weight:500;color:#1A4A6B}
+.resend-btn{background:transparent;border:1.5px solid #1A4A6B;color:#1A4A6B;padding:9px 20px;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;opacity:0.4;pointer-events:none;transition:all 0.2s}
+.resend-btn.active{opacity:1;pointer-events:auto}
+.resend-btn.active:hover{background:#1A4A6B;color:#fff}
+
+.company-name{font-size:12px;color:#1A4A6B;font-weight:500;margin-bottom:0.85rem}
+.apply-btn{width:100%;padding:10px;border:none;border-radius:10px;background:#1A4A6B;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:opacity 0.2s}
+.apply-btn:hover{opacity:0.88}
+
+.offer-block{background:#fff;border-radius:14px;padding:1.5rem;margin-top:1.5rem;border:1px solid #e8edf2}
+.offer-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:#1A4A6B;margin-bottom:0.4rem}
+.offer-sub{font-size:13px;color:#666;margin-bottom:1rem;line-height:1.55}
+.price-line{display:flex;align-items:center;gap:10px;margin-bottom:0.75rem}
+.price-old{font-size:14px;color:#aaa;text-decoration:line-through}
+.price-new{font-size:20px;font-weight:500;color:#2a7a2a}
+.price-badge{background:#e6f4e6;color:#2a7a2a;font-size:11px;padding:3px 10px;border-radius:20px}
+.counter{font-size:12px;color:#c0392b;margin-bottom:1rem;font-weight:500}
+.manager-btn{width:100%;padding:12px;border:none;border-radius:10px;background:#D4AF37;color:#1A4A6B;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:opacity 0.2s}
+.manager-btn:hover{opacity:0.9}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="logo">
+    <div class="logo-star">✡</div>
+    <div>
+      <div class="logo-text">Kosher Jobs</div>
+      <div class="logo-sub">Работа с соблюдением Шаббата</div>
+    </div>
+  </div>
+
+  <!-- ЭКРАН 1 -->
+  <div class="screen active" id="s1">
+    <h1 class="hero-title">Найдём работу,<br>совместимую<br>с Шаббатом</h1>
+    <p class="hero-sub">Загрузите резюме — подберём 3–5 вакансий за 5 минут. Только компании с гибким графиком и удалёнкой.</p>
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+      <div class="upload-icon">📄</div>
+      <div class="upload-label">Перетащите резюме или нажмите для выбора</div>
+      <div class="upload-hint" style="margin-top:0.4rem">PDF, DOC, DOCX · до 5 МБ</div>
+    </div>
+    <div class="formats">
+      <span class="format-badge">PDF</span>
+      <span class="format-badge">DOC</span>
+      <span class="format-badge">DOCX</span>
+    </div>
+    <input type="file" id="fileInput" accept=".pdf,.doc,.docx" onchange="handleUpload(this)"/>
+  </div>
+
+  <!-- ЭКРАН 2 -->
+  <div class="screen" id="s2">
+    <div class="loading-center">
+      <div class="spinner"></div>
+      <ul class="loading-steps" id="loadingSteps">
+        <li id="step1"><span class="step-dot active"></span>Анализируем резюме...</li>
+        <li id="step2"><span class="step-dot"></span>Ищем вакансии на hh.ru...</li>
+        <li id="step3"><span class="step-dot"></span>Проверяем совместимость с Шаббатом...</li>
+        <li id="step4"><span class="step-dot"></span>Формируем подборку...</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ЭКРАН 3 -->
+  <div class="screen" id="s3">
+    <div class="results-header">
+      <div class="results-title">Найдено 3 вакансии</div>
+      <div class="results-sub">Все вакансии совместимы с соблюдением Шаббата</div>
+    </div>
+    <div class="vacancy-card">
+      <div class="card-top">
+        <div class="vacancy-title">Финансовый аналитик</div>
+        <div class="vacancy-salary">120 000 ₽</div>
+      </div>
+      <div class="vacancy-desc">Анализ инвестиционных проектов, подготовка отчётности. Полная удалённая работа, команда в Москве.</div>
+      <div class="shabbat-tag">✦ Удалённая работа — Шаббат можно соблюдать</div>
+      <div class="company-hidden">[Компания скрыта — зарегистрируйтесь]</div>
+      <button class="card-btn" onclick="showRegister()">Зарегистрируйся и получи контакты компании</button>
+    </div>
+    <div class="vacancy-card">
+      <div class="card-top">
+        <div class="vacancy-title">Product Manager</div>
+        <div class="vacancy-salary">180 000 ₽</div>
+      </div>
+      <div class="vacancy-desc">Развитие B2B-продукта в финтех. Гибкий рабочий день, нет дедлайнов по пятницам.</div>
+      <div class="shabbat-tag">✦ Гибкий график — пятница свободна после обеда</div>
+      <div class="company-hidden">[Компания скрыта — зарегистрируйтесь]</div>
+      <button class="card-btn" onclick="showRegister()">Зарегистрируйся и получи контакты компании</button>
+    </div>
+    <div class="vacancy-card">
+      <div class="card-top">
+        <div class="vacancy-title">Маркетолог (удалённо)</div>
+        <div class="vacancy-salary">90 000 ₽</div>
+      </div>
+      <div class="vacancy-desc">SMM, контент, аналитика. 100% удалёнка, асинхронная команда, свой график.</div>
+      <div class="shabbat-tag">✦ Свободный график — работа в удобное время</div>
+      <div class="company-hidden">[Компания скрыта — зарегистрируйтесь]</div>
+      <button class="card-btn" onclick="showRegister()">Зарегистрируйся и получи контакты компании</button>
+    </div>
+    <div class="register-block">
+      <div class="reg-title">Получите контакты всех компаний</div>
+      <div class="reg-sub">Введите email — пришлём ссылку для доступа</div>
+      <div class="reg-form">
+        <input class="reg-input" type="text" placeholder="Ваше имя" id="regName"/>
+        <input class="reg-input" type="email" placeholder="Email" id="regEmail"/>
+        <input class="reg-input" type="text" placeholder="Telegram @username (необязательно)" id="regTg"/>
+        <button class="reg-btn" onclick="sendEmail()">Получить контакты</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ЭКРАН 4 -->
+  <div class="screen" id="s4">
+    <div class="email-sent">
+      <div class="email-icon">✉️</div>
+      <div class="email-title">Письмо отправлено!</div>
+      <div class="email-sub">Откройте почту в соседней вкладке —<br>письмо придёт в течение 1 минуты.<br>Перейдите по ссылке, чтобы увидеть контакты компаний.</div>
+      <div class="timer-box">Не пришло? Повторная отправка через <span class="timer-val" id="timerVal">60</span> сек.</div>
+      <button class="resend-btn" id="resendBtn" onclick="resend()">Отправить повторно</button>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem">
+      <button style="background:transparent;border:none;color:#1A4A6B;font-size:13px;cursor:pointer;text-decoration:underline" onclick="show('s5')">Уже перешли по ссылке? Посмотреть результаты →</button>
+    </div>
+  </div>
+
+  <!-- ЭКРАН 5 -->
+  <div class="screen" id="s5">
+    <div class="results-header">
+      <div class="results-title">Ваши вакансии</div>
+      <div class="results-sub">Контакты компаний открыты</div>
+    </div>
+    <div class="vacancy-card">
+      <div class="card-top">
+        <div class="vacancy-title">Финансовый аналитик</div>
+        <div class="vacancy-salary">120 000 ₽</div>
+      </div>
+      <div class="vacancy-desc">Анализ инвестиционных проектов, подготовка отчётности. Полная удалённая работа.</div>
+      <div class="shabbat-tag">✦ Удалённая работа — Шаббат можно соблюдать</div>
+      <div class="company-name">ООО «Инвест Груп» · invest-group.ru · hr@invest-group.ru</div>
+      <button class="apply-btn">Откликнуться на hh.ru →</button>
+    </div>
+    <div class="vacancy-card">
+      <div class="card-top">
+        <div class="vacancy-title">Product Manager</div>
+        <div class="vacancy-salary">180 000 ₽</div>
+      </div>
+      <div class="vacancy-desc">Развитие B2B-продукта в финтех. Гибкий рабочий день, нет дедлайнов по пятницам.</div>
+      <div class="shabbat-tag">✦ Гибкий график — пятница свободна после обеда</div>
+      <div class="company-name">FinTech Solutions · fts.ru · jobs@fts.ru</div>
+      <button class="apply-btn">Откликнуться на hh.ru →</button>
+    </div>
+    <div class="vacancy-card">
+      <div class="card-top">
+        <div class="vacancy-title">Маркетолог (удалённо)</div>
+        <div class="vacancy-salary">90 000 ₽</div>
+      </div>
+      <div class="vacancy-desc">SMM, контент, аналитика. 100% удалёнка, асинхронная команда, свой график.</div>
+      <div class="shabbat-tag">✦ Свободный график — работа в удобное время</div>
+      <div class="company-name">Digital Agency «Маяк» · mayak.digital · team@mayak.digital</div>
+      <button class="apply-btn">Откликнуться на hh.ru →</button>
+    </div>
+    <div class="offer-block">
+      <div class="offer-title">Хотите, чтобы мы довели вас до собеседования?</div>
+      <div class="offer-sub">Адаптируем резюме под конкретную вакансию, пройдём все фильтры, договоримся о графике с работодателем.</div>
+      <div class="price-line">
+        <span class="price-old">3 000 ₽</span>
+        <span class="price-new">1 000 ₽</span>
+        <span class="price-badge">для первых 50</span>
+      </div>
+      <div class="counter">Осталось мест по спеццене: 43 из 50</div>
+      <button class="manager-btn" onclick="show('s6')">Отправить заявку менеджеру Кошер Джобс</button>
+    </div>
+  </div>
+
+  <!-- ЭКРАН 6 -->
+  <div class="screen" id="s6">
+    <div class="email-sent">
+      <div class="email-icon" style="color:#D4AF37">★</div>
+      <div class="email-title">Заявка отправлена!</div>
+      <div class="email-sub">Менеджер Кошер Джобс получил ваше резюме и выбранные вакансии.<br>Свяжемся с вами в течение 24 часов через Telegram или email.</div>
+      <div style="margin-top:1.5rem;padding:1rem;background:#fff;border-radius:12px;border:1px solid #e8edf2;font-size:13px;color:#555;line-height:1.6">
+        Пока ждёте — <b>сохраните контакты компаний</b>, которые мы нашли. Они у вас уже есть.
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+function show(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function handleUpload(input){
+  if(!input.files.length) return;
+  var f=input.files[0];
+  var ext=f.name.split('.').pop().toLowerCase();
+  if(!['pdf','doc','docx'].includes(ext)){alert('Загрузите файл в формате PDF или Word');return;}
+  if(f.size>5*1024*1024){alert('Файл слишком большой. Максимум 5 МБ');return;}
+  show('s2');
+  runLoadingSteps();
+}
+var uploadZone=document.getElementById('uploadZone');
+uploadZone.addEventListener('dragover',function(e){e.preventDefault();uploadZone.style.borderColor='#1A4A6B';uploadZone.style.background='#f0f5fa';});
+uploadZone.addEventListener('dragleave',function(){uploadZone.style.borderColor='#b0c4d8';uploadZone.style.background='#fff';});
+uploadZone.addEventListener('drop',function(e){
+  e.preventDefault();
+  uploadZone.style.borderColor='#b0c4d8';uploadZone.style.background='#fff';
+  var dt=e.dataTransfer;
+  if(dt.files.length){
+    var inp=document.getElementById('fileInput');
+    try{inp.files=dt.files;}catch(err){}
+    handleUpload({files:dt.files});
+  }
+});
+function runLoadingSteps(){
+  var steps=['step1','step2','step3','step4'];
+  var i=0;
+  function next(){
+    if(i>0){
+      var prev=document.getElementById(steps[i-1]);
+      prev.querySelector('.step-dot').className='step-dot done';
+      prev.classList.add('done');
+    }
+    if(i<steps.length){
+      document.getElementById(steps[i]).querySelector('.step-dot').className='step-dot active';
+      i++;
+      setTimeout(next,900+Math.random()*400);
+    } else {
+      setTimeout(function(){show('s3');},600);
+    }
+  }
+  next();
+}
+function showRegister(){
+  document.querySelector('.register-block').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function sendEmail(){
+  var name=document.getElementById('regName').value.trim();
+  var email=document.getElementById('regEmail').value.trim();
+  if(!name){alert('Введите ваше имя');return;}
+  if(!email||!email.includes('@')){alert('Введите корректный email');return;}
+  show('s4');
+  startTimer();
+}
+var timerInterval;
+function startTimer(){
+  var t=60;
+  var val=document.getElementById('timerVal');
+  var btn=document.getElementById('resendBtn');
+  clearInterval(timerInterval);
+  timerInterval=setInterval(function(){
+    t--;
+    val.textContent=t;
+    if(t<=0){
+      clearInterval(timerInterval);
+      val.textContent='0';
+      btn.classList.add('active');
+    }
+  },1000);
+}
+function resend(){
+  document.getElementById('resendBtn').classList.remove('active');
+  startTimer();
+}
+</script>
+</body>
+</html>
